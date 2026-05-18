@@ -1,7 +1,7 @@
 const seed = {
   users: [
-    { id: "admin", name: "Administrador", username: "admin", password: "admin123", role: "admin", monthlyLimit: 500 },
-    { id: "u1", name: "Ana", username: "ana", password: "123", role: "user", monthlyLimit: 300 }
+    { id: "admin", name: "Administrador", username: "admin", password: "admin123", role: "admin" },
+    { id: "u1", name: "Ana", username: "ana", password: "123", role: "user" }
   ],
   settings: {
     logo: ""
@@ -121,7 +121,7 @@ function renderLayout(content, nav = "dashboard") {
   document.getElementById("nav").onclick = e => { if (e.target.dataset.v) { state.view = e.target.dataset.v; render(); }};
 }
 
-function dashboard(){const data=db.get();const user=data.users.find(u=>u.id===state.currentUser.id);const spend=calcUserSpend(user.id,data);if(user.role==="admin"){const totalUsers=data.users.filter(u=>u.role==="user").length;const totalRevenue=data.consumptions.filter(c=>c.month===monthKey).reduce((s,c)=>s+c.price*c.qty,0);renderLayout(`<h2>Dashboard Administrativo</h2><div class="grid cols-3"><article class="card metric-card"><h3>${totalUsers}</h3><div class="tag">Clientes</div></article><article class="card metric-card"><h3>${money(totalRevenue)}</h3><div class="tag">Consumo do mês</div></article><article class="card metric-card"><h3>${data.products.length}</h3><div class="tag">Produtos</div></article></div>`,`dashboard`);}else{renderLayout(`<h2>Meu Dashboard</h2><div class="grid cols-3"><article class="card metric-card"><h3>${money(spend)}</h3><div class="tag">Consumo do mês</div></article><article class="card metric-card"><h3>${money(user.monthlyLimit||0)}</h3><div class="tag">Limite mensal</div></article><article class="card metric-card"><h3>${money((user.monthlyLimit||0)-spend)}</h3><div class="tag">Saldo</div></article></div><article class="card" style="margin-top:.8rem"><button id="exportReceipt">Exportar recibo PDF</button></article>`,`dashboard`);document.getElementById("exportReceipt").onclick=()=>exportReceiptPDF(user,data);}}
+function dashboard(){const data=db.get();const user=data.users.find(u=>u.id===state.currentUser.id);const spend=calcUserSpend(user.id,data);if(user.role==="admin"){const totalUsers=data.users.filter(u=>u.role==="user").length;const totalRevenue=data.consumptions.filter(c=>c.month===monthKey).reduce((s,c)=>s+c.price*c.qty,0);renderLayout(`<h2>Dashboard Administrativo</h2><div class="grid cols-3"><article class="card metric-card"><h3>${totalUsers}</h3><div class="tag">Clientes</div></article><article class="card metric-card"><h3>${money(totalRevenue)}</h3><div class="tag">Consumo do mês</div></article><article class="card metric-card"><h3>${data.products.length}</h3><div class="tag">Produtos</div></article></div>`,`dashboard`);}else{renderLayout(`<h2>Meu Dashboard</h2><div class="grid cols-3"><article class="card metric-card"><h3>${money(spend)}</h3><div class="tag">Consumo do mês</div></article></div><article class="card" style="margin-top:.8rem"><button id="exportReceipt">Exportar recibo PDF</button></article>`,`dashboard`);document.getElementById("exportReceipt").onclick=()=>exportReceiptPDF(user,data);}}
 
 function menuView(){const data=db.get();const user=data.users.find(u=>u.id===state.currentUser.id);renderLayout(`<h2>Menu</h2><section class="grid cols-3">${data.products.map(p=>`<article class="card product"><div class="product-main">${p.photo?`<img class="product-photo" src="${p.photo}" alt="${p.name}">`:`<div class="product-photo placeholder">Sem foto</div>`}<div><h4>${p.name}</h4><div class="tag">${p.category} • ${money(p.price)}</div></div></div><button data-buy="${p.id}">Adicionar</button></article>`).join("")}</section><article class="card" style="margin-top:.8rem">Total: <strong>${money(calcUserSpend(user.id,data))}</strong></article>`,`menu`);app.querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>{const prod=data.products.find(p=>p.id===b.dataset.buy);data.consumptions.push({id:crypto.randomUUID(),userId:user.id,productId:prod.id,price:prod.price,qty:1,month:monthKey,date:new Date().toISOString()});db.set(data);menuView();});}
 
@@ -137,7 +137,10 @@ function productsView(){const data=db.get();renderLayout(`<h2>Produtos & Logo</h
   };
   document.getElementById("prodForm").onsubmit = async e => {e.preventDefault();const f=new FormData(e.target);const file=f.get("photo");let photo="";if(file&&file.size) photo=await fileToDataUrl(file);data.products.push({id:crypto.randomUUID(),name:f.get("name"),category:f.get("category"),price:Number(f.get("price")),photo});db.set(data);productsView();};}
 
-function usersView(){const data=db.get();renderLayout(`<h2>Usuários</h2><section class="grid">${data.users.filter(u=>u.role==='user').map(u=>`<article class="card"><strong>${u.name}</strong><br>Consumo: ${money(calcUserSpend(u.id,data))}<br><label>Limite mensal</label><input type="number" data-limit="${u.id}" value="${u.monthlyLimit||0}" min="0" step="0.01"/></article>`).join("")}</section><button id="saveLimits" style="margin-top:.8rem">Salvar limites</button>`,`users`);document.getElementById("saveLimits").onclick=()=>{app.querySelectorAll("[data-limit]").forEach(i=>{const u=data.users.find(x=>x.id===i.dataset.limit);u.monthlyLimit=Number(i.value);});db.set(data);usersView();};}
+function usersView(){
+  const data=db.get();
+  renderLayout(`<h2>Usuários</h2><section class="grid">${data.users.filter(u=>u.role==='user').map(u=>`<article class="card"><strong>${u.name}</strong><br>Consumo: ${money(calcUserSpend(u.id,data))}</article>`).join("")}</section>`,`users`);
+}
 
 function render(){if(!state.currentUser) return loginScreen();const user=db.get().users.find(u=>u.id===state.currentUser.id);if(!user) return loginScreen();const allowed={dashboard,menu:menuView,products:productsView,users:usersView};if(user.role!=="admin"&&["products","users"].includes(state.view)) state.view="dashboard";(allowed[state.view]||dashboard)();}
 render();

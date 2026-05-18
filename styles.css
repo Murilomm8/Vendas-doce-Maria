@@ -190,3 +190,9 @@ label { font-size: .92rem; color: var(--text-secondary); display: block; margin-
   .logout-btn { width: auto; }
   .grid.cols-3 { grid-template-columns: repeat(3, minmax(220px,1fr)); }
 }
+
+
+.product-main { display:flex; gap:.7rem; align-items:center; }
+.product-photo, .thumb { width:64px; height:64px; border-radius:10px; object-fit:cover; border:1px solid var(--border); background:#fff; }
+.placeholder { display:grid; place-items:center; font-size:.7rem; color:var(--text-secondary); background:#f9f5f1; }
+.list-product { display:flex; gap:.75rem; align-items:center; }

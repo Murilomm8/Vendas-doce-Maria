@@ -196,3 +196,43 @@ label { font-size: .92rem; color: var(--text-secondary); display: block; margin-
 .product-photo, .thumb { width:64px; height:64px; border-radius:10px; object-fit:cover; border:1px solid var(--border); background:#fff; }
 .placeholder { display:grid; place-items:center; font-size:.7rem; color:var(--text-secondary); background:#f9f5f1; }
 .list-product { display:flex; gap:.75rem; align-items:center; }
+
+
+/* Ajustes finos para mobile */
+@media (max-width: 767px) {
+  body { background: var(--bg); }
+  .sidebar {
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+    padding: .75rem;
+  }
+  .nav { gap: .4rem; margin-top: .55rem; }
+  .nav button { padding: .62rem .85rem; font-size: .9rem; }
+  .content { padding: .75rem; }
+  .card { border-radius: 12px; padding: .85rem; }
+  .metric-card h3 { font-size: 1.3rem; }
+  .product-main {
+    width: 100%;
+    align-items: flex-start;
+  }
+  .product {
+    gap: .75rem;
+  }
+  .product button {
+    width: 100%;
+  }
+  .product-photo, .thumb {
+    width: 56px;
+    height: 56px;
+    flex: 0 0 56px;
+  }
+  .table { min-width: 380px; }
+}
+
+@media (max-width: 420px) {
+  .logo-mark { width: 155px; height: 52px; font-size: .92rem; }
+  .sidebar .brand { font-size: 1rem; }
+  .welcome { font-size: .8rem; }
+  .nav button { font-size: .84rem; }
+  .table { min-width: 340px; }
+}

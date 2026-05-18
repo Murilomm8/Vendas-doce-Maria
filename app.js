@@ -95,9 +95,9 @@ function dashboard() {
         <article class="card"><h3>${data.products.length}</h3><div class="tag">Produtos cadastrados</div></article>
       </div>
       <article class="card" style="margin-top:1rem"><h3>Consumo por usuário (${monthKey})</h3>
-      <table class="table"><thead><tr><th>Usuário</th><th>Consumo</th><th>Limite mensal</th></tr></thead><tbody>
+      <div class="table-wrap"><table class="table"><thead><tr><th>Usuário</th><th>Consumo</th><th>Limite mensal</th></tr></thead><tbody>
       ${data.users.filter(u=>u.role==='user').map(u=>`<tr><td>${u.name}</td><td>${money(calcUserSpend(u.id,data))}</td><td>${money(u.monthlyLimit||0)}</td></tr>`).join("")}
-      </tbody></table></article>`, "dashboard");
+      </tbody></table></div></article>`, "dashboard");
   } else {
     renderLayout(`<h2>Meu Dashboard</h2><div class="grid cols-3">
       <article class="card"><h3>${money(spend)}</h3><div class="tag">Consumo no mês (${monthKey})</div></article>
